@@ -79,16 +79,17 @@
 
 
 
-<meta name="description" content="Keep studying">
-<meta property="og:type" content="website">
-<meta property="og:title" content="RoboG&#39;s Blog">
-<meta property="og:url" content="http://yoursite.com/index.html">
+<meta name="description" content="内存缓存一般通过Map、List、链表等集合实现。将已创建的对象放入集合中，等下次需要新建时，直接从集合中去取。如果集合中的对象已被回收，就重复上述步骤。这样避免了每次新建对象带来的开销以及内存占用。 一、Map我们通过lifecycle包创建ViewModel时会通过这样的方式: 1ViewModelProviders.of(activity).get(MyViewModel.class); 看">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅谈Android中的缓存(一)——内存缓存">
+<meta property="og:url" content="http://yoursite.com/2018/07/03/浅谈Android中的缓存1/index.html">
 <meta property="og:site_name" content="RoboG&#39;s Blog">
-<meta property="og:description" content="Keep studying">
+<meta property="og:description" content="内存缓存一般通过Map、List、链表等集合实现。将已创建的对象放入集合中，等下次需要新建时，直接从集合中去取。如果集合中的对象已被回收，就重复上述步骤。这样避免了每次新建对象带来的开销以及内存占用。 一、Map我们通过lifecycle包创建ViewModel时会通过这样的方式: 1ViewModelProviders.of(activity).get(MyViewModel.class); 看">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-07-03T13:07:17.247Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="RoboG&#39;s Blog">
-<meta name="twitter:description" content="Keep studying">
+<meta name="twitter:title" content="浅谈Android中的缓存(一)——内存缓存">
+<meta name="twitter:description" content="内存缓存一般通过Map、List、链表等集合实现。将已创建的对象放入集合中，等下次需要新建时，直接从集合中去取。如果集合中的对象已被回收，就重复上述步骤。这样避免了每次新建对象带来的开销以及内存占用。 一、Map我们通过lifecycle包创建ViewModel时会通过这样的方式: 1ViewModelProviders.of(activity).get(MyViewModel.class); 看">
 
 
 
@@ -118,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/07/03/浅谈Android中的缓存1/"/>
 
 
 
 
 
-  <title>RoboG's Blog</title>
+  <title>浅谈Android中的缓存(一)——内存缓存 | RoboG's Blog</title>
   
 
 
@@ -143,8 +144,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-  page-home">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -217,9 +217,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -249,9 +249,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/07/03/浅谈Android中的缓存1/" itemprop="url">浅谈Android中的缓存(一)——内存缓存</a></h1>
+          <h1 class="post-title" itemprop="name headline">浅谈Android中的缓存(一)——内存缓存</h1>
         
 
         <div class="post-meta">
@@ -301,9 +299,7 @@
       
 
       
-        
-          
-            <p>内存缓存一般通过Map、List、链表等集合实现。将已创建的对象放入集合中，等下次需要新建时，直接从集合中去取。如果集合中的对象已被回收，就重复上述步骤。这样避免了每次新建对象带来的开销以及内存占用。</p>
+        <p>内存缓存一般通过Map、List、链表等集合实现。将已创建的对象放入集合中，等下次需要新建时，直接从集合中去取。如果集合中的对象已被回收，就重复上述步骤。这样避免了每次新建对象带来的开销以及内存占用。</p>
 <h2 id="一、Map"><a href="#一、Map" class="headerlink" title="一、Map"></a>一、Map</h2><p>我们通过lifecycle包创建ViewModel时会通过这样的方式:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ViewModelProviders.of(activity).get(MyViewModel.class);</span><br></pre></td></tr></table></figure>
 <p>看一下get方法:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;T extends ViewModel&gt; <span class="function">T <span class="title">get</span><span class="params">(@NonNull Class&lt;T&gt; modelClass)</span> </span>&#123;</span><br><span class="line">    String canonicalName = modelClass.getCanonicalName();</span><br><span class="line">    <span class="keyword">if</span> (canonicalName == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Local and anonymous classes can not be ViewModels"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> get(DEFAULT_KEY + <span class="string">":"</span> + canonicalName, modelClass);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> &lt;T extends ViewModel&gt; <span class="function">T <span class="title">get</span><span class="params">(@NonNull String key, @NonNull Class&lt;T&gt; modelClass)</span> </span>&#123;</span><br><span class="line">    ViewModel viewModel = mViewModelStore.get(key);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (modelClass.isInstance(viewModel)) &#123;</span><br><span class="line">        <span class="comment">//noinspection unchecked</span></span><br><span class="line">        <span class="keyword">return</span> (T) viewModel;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">//noinspection StatementWithEmptyBody</span></span><br><span class="line">        <span class="keyword">if</span> (viewModel != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// <span class="doctag">TODO:</span> log a warning.</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    viewModel = mFactory.create(modelClass);</span><br><span class="line">    mViewModelStore.put(key, viewModel);</span><br><span class="line">    <span class="comment">//noinspection unchecked</span></span><br><span class="line">    <span class="keyword">return</span> (T) viewModel;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
@@ -315,8 +311,6 @@
 <p>如果sPool不为空，就返回sPool所引用的Message对象，并且让sPool指向它的next，即当前Message的下一个Message对象，即obtain方法下一次调用时所返回的对象。最近写的持久化日志库<a href="https://github.com/XingdongYu/PersistentLog" target="_blank" rel="noopener">PersistentLog</a>因为会频繁创建日志对象LogBean，参照Message写了缓存池。</p>
 <h2 id="三、List"><a href="#三、List" class="headerlink" title="三、List"></a>三、List</h2><p>目前没想到例子，想起来了再补🐶</p>
 
-          
-        
       
     </div>
     
@@ -333,133 +327,28 @@
       
 
       
-
-      
-
       
       
-        <div class="post-eof"></div>
+
       
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/02/hello-blog/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="XingdongYu">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/icetime.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="RoboG's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/07/02/hello-blog/" itemprop="url">Hello Blog</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-02T18:26:24+08:00">
-                2018-07-02
-              </time>
+              <a href="/2018/07/02/hello-blog/" rel="next" title="Hello Blog">
+                <i class="fa fa-chevron-left"></i> Hello Blog
+              </a>
             
+          </div>
 
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
             
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
+          </div>
         </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
       
 
       
-        
-          
-            <p>之前文章一直在cnblog上写，虽然不多却也花费了不少心思，所以会把这些文章陆续迁移过来。以后如果踩了什么坑或者有什么好玩的东西也都会放在这儿。希望能一直坚持下去。</p>
-<p>2018.07.02<br>by: RoboG</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -469,10 +358,11 @@
   </article>
 
 
-    
-  </section>
 
-  
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -480,6 +370,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -500,8 +394,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -557,6 +460,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、Map"><span class="nav-number">1.</span> <span class="nav-text">一、Map</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、链表"><span class="nav-number">2.</span> <span class="nav-text">二、链表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、List"><span class="nav-number">3.</span> <span class="nav-text">三、List</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -690,6 +609,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 

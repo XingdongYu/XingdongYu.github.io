@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="内存缓存一般通过Map、List、链表等集合实现。将已创建的对象放入集合中，等下次需要新建时，直接从集合中去取。如果集合中的对象已被回收，就重复上述步骤。这样避免了每次新建对象带来的开销以及内存占用。 一、Map我们通过lifecycle包创建ViewModel时会通过这样的方式: 1ViewModelProviders.of(activity).get(MyViewModel.class); 看">
+<meta name="description" content="内存缓存一般通过Map、List、链表等集合实现。将已创建的对象放入集合中，等下次需要新建时，直接从集合中去取。如果集合中的对象已被回收，就重复上述步骤。这样避免了每次新建对象带来的开销以及内存占用。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="浅谈Android中的缓存(一)——内存缓存">
 <meta property="og:url" content="http://yoursite.com/2018/07/03/浅谈Android中的缓存1/index.html">
 <meta property="og:site_name" content="RoboG&#39;s Blog">
-<meta property="og:description" content="内存缓存一般通过Map、List、链表等集合实现。将已创建的对象放入集合中，等下次需要新建时，直接从集合中去取。如果集合中的对象已被回收，就重复上述步骤。这样避免了每次新建对象带来的开销以及内存占用。 一、Map我们通过lifecycle包创建ViewModel时会通过这样的方式: 1ViewModelProviders.of(activity).get(MyViewModel.class); 看">
+<meta property="og:description" content="内存缓存一般通过Map、List、链表等集合实现。将已创建的对象放入集合中，等下次需要新建时，直接从集合中去取。如果集合中的对象已被回收，就重复上述步骤。这样避免了每次新建对象带来的开销以及内存占用。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-07-03T13:07:17.247Z">
+<meta property="og:updated_time" content="2018-07-03T13:11:53.429Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="浅谈Android中的缓存(一)——内存缓存">
-<meta name="twitter:description" content="内存缓存一般通过Map、List、链表等集合实现。将已创建的对象放入集合中，等下次需要新建时，直接从集合中去取。如果集合中的对象已被回收，就重复上述步骤。这样避免了每次新建对象带来的开销以及内存占用。 一、Map我们通过lifecycle包创建ViewModel时会通过这样的方式: 1ViewModelProviders.of(activity).get(MyViewModel.class); 看">
+<meta name="twitter:description" content="内存缓存一般通过Map、List、链表等集合实现。将已创建的对象放入集合中，等下次需要新建时，直接从集合中去取。如果集合中的对象已被回收，就重复上述步骤。这样避免了每次新建对象带来的开销以及内存占用。">
 
 
 
@@ -299,7 +299,7 @@
       
 
       
-        <p>内存缓存一般通过Map、List、链表等集合实现。将已创建的对象放入集合中，等下次需要新建时，直接从集合中去取。如果集合中的对象已被回收，就重复上述步骤。这样避免了每次新建对象带来的开销以及内存占用。</p>
+        <p>内存缓存一般通过Map、List、链表等集合实现。将已创建的对象放入集合中，等下次需要新建时，直接从集合中去取。如果集合中的对象已被回收，就重复上述步骤。这样避免了每次新建对象带来的开销以及内存占用。<br><a id="more"></a></p>
 <h2 id="一、Map"><a href="#一、Map" class="headerlink" title="一、Map"></a>一、Map</h2><p>我们通过lifecycle包创建ViewModel时会通过这样的方式:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ViewModelProviders.of(activity).get(MyViewModel.class);</span><br></pre></td></tr></table></figure>
 <p>看一下get方法:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;T extends ViewModel&gt; <span class="function">T <span class="title">get</span><span class="params">(@NonNull Class&lt;T&gt; modelClass)</span> </span>&#123;</span><br><span class="line">    String canonicalName = modelClass.getCanonicalName();</span><br><span class="line">    <span class="keyword">if</span> (canonicalName == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Local and anonymous classes can not be ViewModels"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> get(DEFAULT_KEY + <span class="string">":"</span> + canonicalName, modelClass);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> &lt;T extends ViewModel&gt; <span class="function">T <span class="title">get</span><span class="params">(@NonNull String key, @NonNull Class&lt;T&gt; modelClass)</span> </span>&#123;</span><br><span class="line">    ViewModel viewModel = mViewModelStore.get(key);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (modelClass.isInstance(viewModel)) &#123;</span><br><span class="line">        <span class="comment">//noinspection unchecked</span></span><br><span class="line">        <span class="keyword">return</span> (T) viewModel;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">//noinspection StatementWithEmptyBody</span></span><br><span class="line">        <span class="keyword">if</span> (viewModel != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// <span class="doctag">TODO:</span> log a warning.</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    viewModel = mFactory.create(modelClass);</span><br><span class="line">    mViewModelStore.put(key, viewModel);</span><br><span class="line">    <span class="comment">//noinspection unchecked</span></span><br><span class="line">    <span class="keyword">return</span> (T) viewModel;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>

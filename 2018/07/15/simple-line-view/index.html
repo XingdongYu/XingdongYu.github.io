@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="RoboG's Blog" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="前言创建这个库并非是由于某个需求，而是以前在阅读OkHttp源码时深感设计的精妙，一直有一个模仿其责任链模式做一个自定义View(SimpleLineView)的想法，一是为了好玩，二是希望能够抛砖引玉。">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="打造一个可定制的Path动画">
+<meta property="og:url" content="http://yoursite.com/2018/07/15/simple-line-view/index.html">
+<meta property="og:site_name" content="RoboG&#39;s Blog">
+<meta property="og:description" content="前言创建这个库并非是由于某个需求，而是以前在阅读OkHttp源码时深感设计的精妙，一直有一个模仿其责任链模式做一个自定义View(SimpleLineView)的想法，一是为了好玩，二是希望能够抛砖引玉。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/images/simple-line-view/sample.gif">
+<meta property="og:image" content="http://yoursite.com/images/simple-line-view/diagram.png">
+<meta property="og:image" content="http://yoursite.com/images/simple-line-view/pixel.png">
+<meta property="og:updated_time" content="2018-07-15T08:04:24.406Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="打造一个可定制的Path动画">
+<meta name="twitter:description" content="前言创建这个库并非是由于某个需求，而是以前在阅读OkHttp源码时深感设计的精妙，一直有一个模仿其责任链模式做一个自定义View(SimpleLineView)的想法，一是为了好玩，二是希望能够抛砖引玉。">
+<meta name="twitter:image" content="http://yoursite.com/images/simple-line-view/sample.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/07/15/simple-line-view/"/>
+
+
+
+
+
+  <title>打造一个可定制的Path动画 | RoboG's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">RoboG's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Welcome to my blog</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/15/simple-line-view/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="XingdongYu">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/icetime.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="RoboG's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">打造一个可定制的Path动画</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-15T15:11:14+08:00">
+                2018-07-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>创建这个库并非是由于某个需求，而是以前在阅读OkHttp源码时深感设计的精妙，一直有一个模仿其责任链模式做一个自定义View(<a href="https://github.com/XingdongYu/SimpleLineView" target="_blank" rel="noopener">SimpleLineView</a>)的想法，一是为了好玩，二是希望能够抛砖引玉。<br><a id="more"></a></p>
+<p>对于View的path动画，<a href="https://github.com/mcxtzhang/PathAnimView" target="_blank" rel="noopener">PathAnimView</a>甚至是<a href="https://github.com/airbnb/lottie-android" target="_blank" rel="noopener">Lottie</a>等都可以作出十分复杂酷炫的path动画。如果你的动画很复杂很酷炫，这个库可能就不太适合了。</p>
+<p>当然，SimpleLineView也有自己的优势：<br>1、可随意定制路径<br>2、路径可以随意组合<br>3、支持progress</p>
+<h2 id="效果图"><a href="#效果图" class="headerlink" title="效果图"></a>效果图</h2><p><img src="/images/simple-line-view/sample.gif" alt="image"></p>
+<h2 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h2><p>1、自定义Painter（绘制相关接口），提供绘制功能。<br>2、RealChain实现了Chain接口并且维护了一个Painter的list，控制所有Painter依次执行绘制。<br>3、SimpleLineView维护了一个RealChain并且对外提供了方法，用于添加Painter以及控制动画的启动、停止和继续。在onDraw里调用当前Painter的onDraw方法实现真正的绘制。<br><img src="/images/simple-line-view/diagram.png" alt="image"></p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 圆形</span></span><br><span class="line">PixelPath circlePath = <span class="keyword">new</span> PixelPath(<span class="number">10</span>, <span class="number">10</span>, <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;<span class="number">1</span>, <span class="number">100</span>&#125;);</span><br><span class="line">CirclePainter ciclePainter = <span class="keyword">new</span> RealCirclePainter(circlePath, <span class="number">1000</span>, -<span class="number">120</span>, <span class="number">360</span>, <span class="keyword">false</span>);</span><br><span class="line"><span class="comment">// 矩形</span></span><br><span class="line">PixelPath squarePath = <span class="keyword">new</span> PixelPath(<span class="number">2</span>, <span class="number">2</span>, <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">3</span>&#125;);</span><br><span class="line">Painter squarePainter = <span class="keyword">new</span> SegmentPainter(squarePath, <span class="number">1000</span>, <span class="keyword">true</span>);</span><br><span class="line"><span class="comment">// 添加路径</span></span><br><span class="line">mView.addPainter(ciclePainter).addPainter(squarePainter);</span><br><span class="line"><span class="comment">// 启动</span></span><br><span class="line">mView.start();</span><br><span class="line"><span class="comment">// 停止</span></span><br><span class="line">mView.stop();</span><br><span class="line"><span class="comment">// 继续</span></span><br><span class="line">mView.stick();</span><br></pre></td></tr></table></figure>
+<h2 id="前期准备：PixelPath"><a href="#前期准备：PixelPath" class="headerlink" title="前期准备：PixelPath"></a>前期准备：PixelPath</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 横向像素</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> mHorizontal;</span><br><span class="line"><span class="comment">// 纵向像素</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> mVertical;</span><br><span class="line"><span class="comment">// 路径经过的像素序号</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span>[] mPath;</span><br><span class="line">SimpleLineView将View的长和宽分成若干个格子，格子数由图片的像素决定，并且规定了path的序号（从<span class="number">1</span>开始，从左往右、从上到下依次递增<span class="number">1</span>）。</span><br></pre></td></tr></table></figure>
+<p>例如，一张像素为4 * 4的图片<br><img src="/images/simple-line-view/pixel.png" alt="image"></p>
+<p>这里的mHorizontal(横向格子数)和mVertical(纵向格子数)都为4。如果mPath为{1, 13, 16, 4}, 则绘制的图形为依次连接1，13，16，4的矩形(是否封闭可设置对应参数)。<br>如果图形的形状比较复杂，可以用PS打开图片，依次获取像素点的x和y值(这里x和y值的单位可以是像素、厘米等，但是计算时要与图像大小的单位一致)。假设图像宽为w, 高为h, 则当前点的值为 w * ( y - 1) + x。</p>
+<h2 id="Painter接口"><a href="#Painter接口" class="headerlink" title="Painter接口"></a>Painter接口</h2><p>Painter接口主要提供了绘制的功能以及绘制时所需要的一些参数。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Painter</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 获取Path</span></span><br><span class="line">    <span class="function">PixelPath <span class="title">getPixelPath</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 时长</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">duration</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 路径是否闭合</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">close</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 设置Paint</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setPaint</span><span class="params">(Paint paint)</span></span>;</span><br><span class="line">    <span class="comment">// 获取Paint</span></span><br><span class="line">    <span class="function">Paint <span class="title">getPaint</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 动画是否正在进行</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isRunning</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 开始动画</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">start</span><span class="params">(Chain chain, Action action)</span></span>;</span><br><span class="line">    <span class="comment">// 停止动画</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">stop</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 真正绘制的地方</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onDraw</span><span class="params">(Canvas canvas)</span></span>;</span><br><span class="line">    <span class="comment">// 进行下一笔绘画时，完整画完当前笔</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">completeDraw</span><span class="params">(Canvas canvas)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>onDraw方法和View的onDraw方法一样实现绘制。这里主要介绍一下completeDraw方法。由于每个Painter是依次绘制的，当下一个Painter进行绘制时，当前Pianter的形状也需要绘制，所以这里的completeDraw应该是当前Painter所要绘制的完整形状。这个方法会被当前Painter之后的每一个Painter调用。有点绕，看一下抽象类AbstractPainter的onDraw实现：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onDraw</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 1.完成之前Painter的绘制</span></span><br><span class="line">    drawPreviouse(canvas);</span><br><span class="line">    <span class="comment">// 2.绘制当前</span></span><br><span class="line">    realDraw(canvas);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>drawPreviouse方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 开始当前绘制前，先完成之前的绘制</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> canvas</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">drawPreviouse</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (chain != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 当前Painter的index</span></span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> index = chain.index();</span><br><span class="line">        <span class="keyword">final</span> List&lt;Painter&gt; painters = chain.painters();</span><br><span class="line">        <span class="comment">// 遍历所有之前的Painter，调用completeDraw方法</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; index - <span class="number">1</span>; i ++) &#123;</span><br><span class="line">            <span class="keyword">final</span> Painter painter = painters.get(i);</span><br><span class="line">            painter.completeDraw(canvas);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>为了方便说明，看一下AbstractPainter的一个子类RealCirclePainter的completeDraw和realDraw方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">completeDraw</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">    canvas.drawArc(mRectF, mStartAngle, mSweepAngle, mUseCenter, paint);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">realDraw</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">    canvas.drawArc(mRectF, mStartAngle, angle(), mUseCenter, paint);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>mSweepAngle是所需扫过的角度，angle()为当前的角度大小，这个角度会随着时间递增，如此也就有了动画。<br>当然必须得看一下AbstractPainter的start方法，这个才是每个Painter开始的地方。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">(Chain chain, Action action)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//是否正在执行</span></span><br><span class="line">    mIsRunning = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">this</span>.chain = chain;</span><br><span class="line">    <span class="comment">// 计算实际坐标点</span></span><br><span class="line">    pointList = action.fetchCoordinate(<span class="keyword">this</span>);</span><br><span class="line">    <span class="comment">// 执行绘制</span></span><br><span class="line">    <span class="keyword">boolean</span> isFinish = performDraw(action);</span><br><span class="line">    mIsRunning = <span class="keyword">false</span>;</span><br><span class="line">    <span class="comment">// 如果的确绘制完成，下一步</span></span><br><span class="line">    <span class="keyword">if</span> (isFinish) &#123;</span><br><span class="line">        chain.proceed();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>fetchCoordinate方法为绘制提供了坐标点，实现下文会介绍。之后通过performDraw方法来开始View的绘制，看一下AbstractPainter另一个子类SegmentPainter的performDraw方法实现：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">performDraw</span><span class="params">(Action action)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 总路程</span></span><br><span class="line">    <span class="keyword">float</span> distance = Utils.calDistance(pointList, close());</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; pointList.size(); i++) &#123;</span><br><span class="line">        <span class="comment">// 省略若干代码          </span></span><br><span class="line">        <span class="keyword">while</span> (!current.isPathFinish()) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!isRunning()) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 省略计算代码</span></span><br><span class="line">            <span class="comment">// 更新界面</span></span><br><span class="line">            action.update(<span class="keyword">this</span>);</span><br><span class="line">            SystemClock.sleep(INTERVAL);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 保证图像都绘制</span></span><br><span class="line">        action.update(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在performDraw方法中会遍历PixelPoint的list，每隔INTERVAL时间调用Action接口的update方法更新View一次。</p>
+<h2 id="Chain接口"><a href="#Chain接口" class="headerlink" title="Chain接口"></a>Chain接口</h2><p>Chain主要提供了调控的功能。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Chain</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 执行</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">proceed</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 当前Painter的index</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">index</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 设置结束监听</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setOnFinishListener</span><span class="params">(OnFinishListener listener)</span></span>;</span><br><span class="line">    <span class="comment">// 所有的Painter</span></span><br><span class="line">    <span class="function">List&lt;Painter&gt; <span class="title">painters</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="comment">// 结束接听接口</span></span><br><span class="line">    <span class="class"><span class="keyword">interface</span> <span class="title">OnFinishListener</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">onFinish</span><span class="params">(<span class="keyword">int</span> index)</span></span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>看一下唯一实现类RealChain的proceed方法<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">proceed</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (mOnFinishListener != <span class="keyword">null</span> &amp;&amp; mIndex &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        mOnFinishListener.onFinish(mIndex - <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果index等于size就返回结束了</span></span><br><span class="line">    <span class="keyword">if</span> (mIndex == mPainters.size()) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 设置progress时会不断调用该方法，为了避免不断创建RealChain对象，</span></span><br><span class="line">    <span class="comment">// 这里用了SparseArray保存所有已经创建的RealChain对象，key为index</span></span><br><span class="line">    Chain next = mChainPool.get(mIndex);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (next == <span class="keyword">null</span>) &#123;</span><br><span class="line">        next = <span class="keyword">new</span> RealChain(mPainters, mIndex + <span class="number">1</span>, mAction);</span><br><span class="line">        next.setOnFinishListener(mOnFinishListener);</span><br><span class="line">        mChainPool.put(mIndex, next);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> Painter painter = mPainters.get(mIndex);</span><br><span class="line">    painter.start(next, mAction);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里照搬了OkHttp，通过在RealChain的procced方法创建新的RealChain对象实现Painter的依次执行。由于Painter都是自定义的，所以当index等于所有Painter的size时return就好了，而OkHttp的最后一个Interceptor是没有创建Chain的。</p>
+<h2 id="Action接口"><a href="#Action接口" class="headerlink" title="Action接口"></a>Action接口</h2><p>Action接口主要提供了计算当前path实际坐标点、通知更新View以及设置或者获取View的所需的参数的功能，这也是View需要实现的接口。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Action</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 更新view，实际调用的是&#123;<span class="doctag">@link</span> SimpleLineView#postInvalidate()&#125;方法</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> painter 该painter实现view的onDraw</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">update</span><span class="params">(Painter painter)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 对外接口，设置progress后更新view</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> progress</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setProgress</span><span class="params">(<span class="keyword">int</span> progress)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * painter中通过调用该接口进行相应的绘制工作</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getProgress</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 通过当前view执行的状态作出相应处理，可参考&#123;<span class="doctag">@link</span> com.robog.library.painter.TaskPainter#start(Chain, Action)&#125;方法</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getStatus</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获得当前painter下所有点的实际坐标</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> painter</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function">List&lt;PixelPoint&gt; <span class="title">fetchCoordinate</span><span class="params">(Painter painter)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>看一下fetchCoordinate方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> List&lt;PixelPoint&gt; <span class="title">fetchCoordinate</span><span class="params">(Painter painter)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 同样的，这里避免频繁设置progress不断创建PixelPoint对象</span></span><br><span class="line">    List&lt;PixelPoint&gt; pixelPoints = mPointPool.get(painter);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (pixelPoints != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> pixelPoints;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    pixelPoints = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    Utils.setPoint(painter, pixelPoints, mWidth, mHeight);</span><br><span class="line">    mPointPool.put(painter, pixelPoints);</span><br><span class="line">    <span class="keyword">return</span> pixelPoints;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Utils的setPoint方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setPoint</span><span class="params">(Painter painter, List&lt;PixelPoint&gt; pixelPoints, <span class="keyword">int</span> width, <span class="keyword">int</span> height)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 先获取PixelPath</span></span><br><span class="line">    <span class="keyword">final</span> PixelPath pixelPath = painter.getPixelPath();</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span>[] path = pixelPath.getPath();</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> horizontal = pixelPath.getHorizontal();</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> vertical = pixelPath.getVertical();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> target : path) &#123;</span><br><span class="line">        <span class="comment">// 如果PixelPath中点的序号超过总数则抛出异常</span></span><br><span class="line">        <span class="keyword">if</span> (target &gt; horizontal * vertical) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Current coordinate ["</span> + target + <span class="string">"] is invalid!"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 商</span></span><br><span class="line">        <span class="keyword">int</span> quotient = target / horizontal;</span><br><span class="line">        <span class="comment">// 余数</span></span><br><span class="line">        <span class="keyword">int</span> remainder = target % horizontal;</span><br><span class="line">        <span class="comment">// 实际的x和y坐标</span></span><br><span class="line">        <span class="keyword">float</span> x;</span><br><span class="line">        <span class="keyword">float</span> y;</span><br><span class="line">        <span class="comment">// x和y坐标的系数</span></span><br><span class="line">        <span class="keyword">float</span> coefficientX;</span><br><span class="line">        <span class="keyword">float</span> coefficientY;</span><br><span class="line">        <span class="keyword">if</span> (remainder != <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// 余数不为0时，这里的0.5是让实际坐标点位于方格中心点</span></span><br><span class="line">            coefficientX = remainder - <span class="number">0.5f</span>;</span><br><span class="line">            coefficientY = quotient + <span class="number">0.5f</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 余数为0时</span></span><br><span class="line">            coefficientX = horizontal - <span class="number">0.5f</span>;</span><br><span class="line">            coefficientY = quotient - <span class="number">0.5f</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// width / horizontal为每个方格的宽度</span></span><br><span class="line">        <span class="comment">// 每个方格的宽度乘系数即为x的坐标</span></span><br><span class="line">        x = coefficientX *  width / horizontal;</span><br><span class="line">        <span class="comment">// 同理</span></span><br><span class="line">        y = coefficientY *  height / vertical;</span><br><span class="line"></span><br><span class="line">        PixelPoint pixelPoint = <span class="keyword">new</span> PixelPoint(x, y);</span><br><span class="line">        pixelPoints.add(pixelPoint);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>用的小学数学，看一下注释就好了。接着看一下update和onDraw方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">update</span><span class="params">(Painter painter)</span> </span>&#123;</span><br><span class="line">    mCurrentPainter = painter;</span><br><span class="line">    postInvalidate();</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDraw</span><span class="params">(Canvas canvas)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mCurrentPainter != <span class="keyword">null</span>) &#123;</span><br><span class="line">        mCurrentPainter.onDraw(canvas);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在update中设置当前的painter，由于之前的操作在线程中，这里调用postInvalidate通知绘制，在View的onDraw方法中调用Painter的onDraw实现绘制。</p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>介绍完三个接口，整体的流程算是介绍完了，下面看一下两个功能型的Painter。</p>
+<h3 id="DelayPainter"><a href="#DelayPainter" class="headerlink" title="DelayPainter"></a>DelayPainter</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">(Chain chain, Action action)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (Looper.myLooper() == Looper.getMainLooper()) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Can't delay in the main thread!"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        Thread.sleep(mTime);</span><br><span class="line">        chain.proceed();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在start方法通过Thread.sleep进行延时，如果当前方法在主线程执行就抛出异常。</p>
+<h3 id="TaskPainter"><a href="#TaskPainter" class="headerlink" title="TaskPainter"></a>TaskPainter</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">(<span class="keyword">final</span> Chain chain, <span class="keyword">final</span> Action action)</span> </span>&#123;</span><br><span class="line">    mIsRunning = <span class="keyword">true</span>;</span><br><span class="line">    EXECUTOR.execute(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="comment">// 当status为start时重置point</span></span><br><span class="line">            <span class="keyword">if</span> (action.getStatus() == STATUS_START) &#123;</span><br><span class="line">                Utils.resetPointStatus(mPainterPool);</span><br><span class="line">            &#125;</span><br><span class="line">            chain.proceed();</span><br><span class="line">            mIsRunning = <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当Painter有多个时，计算会耗费一定的时间，这里将chain的procced置于线程中，让后续的过程都在线程中执行以保证动画的流畅。并且，当start动画时，将PixelPoint的状态重置，保证下一次绘制是一个完整的过程。</p>
+<h2 id="不足"><a href="#不足" class="headerlink" title="不足"></a>不足</h2><p>1、图形较为复杂时，通过PS获取计算坐标点较为繁琐。<br>2、由于计算在子线程，绘制在主线程，当SimpleLineView设置progress过快时，上一步onDraw可能未完成，画面可能会闪动，暂时的解决方法是将此过程放入主线程。使用代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mView.addPainter(mCicleProgressPainter).addPainter(mHookProgressPainter).onMain();</span><br><span class="line">mView.setProgress(progress);</span><br></pre></td></tr></table></figure></p>
+<p>OK，基本上介绍完了，如果有什么不足或者有什么问题欢迎指正！</p>
+<p>项目地址：<a href="https://github.com/XingdongYu/SimpleLineView" target="_blank" rel="noopener">https://github.com/XingdongYu/SimpleLineView</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/03/android-cache-1/" rel="next" title="浅谈Android中的缓存(一)——内存缓存">
+                <i class="fa fa-chevron-left"></i> 浅谈Android中的缓存(一)——内存缓存
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/icetime.jpeg"
+                alt="XingdongYu" />
+            
+              <p class="site-author-name" itemprop="name">XingdongYu</p>
+              <p class="site-description motion-element" itemprop="description">Keep studying</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/XingdongYu" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-globe"></i>GitHub</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#效果图"><span class="nav-number">2.</span> <span class="nav-text">效果图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#整体架构"><span class="nav-number">3.</span> <span class="nav-text">整体架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用"><span class="nav-number">4.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#前期准备：PixelPath"><span class="nav-number">5.</span> <span class="nav-text">前期准备：PixelPath</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Painter接口"><span class="nav-number">6.</span> <span class="nav-text">Painter接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Chain接口"><span class="nav-number">7.</span> <span class="nav-text">Chain接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Action接口"><span class="nav-number">8.</span> <span class="nav-text">Action接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他"><span class="nav-number">9.</span> <span class="nav-text">其他</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DelayPainter"><span class="nav-number">9.1.</span> <span class="nav-text">DelayPainter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TaskPainter"><span class="nav-number">9.2.</span> <span class="nav-text">TaskPainter</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#不足"><span class="nav-number">10.</span> <span class="nav-text">不足</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">XingdongYu</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

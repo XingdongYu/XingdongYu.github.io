@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2018-11-05T04:33:25.681Z</updated>
+  <updated>2019-02-01T03:22:21.613Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>RecyclerView菜单全屏解决方案</title>
+    <link href="http://yoursite.com/2019/02/01/recyclerview-menu/"/>
+    <id>http://yoursite.com/2019/02/01/recyclerview-menu/</id>
+    <published>2019-02-01T03:16:31.600Z</published>
+    <updated>2019-02-01T03:22:21.613Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>目前菜单界面采用RecyclerView + GridLayoutManager实现，最大的好处是修改样式十分方便。但是GridLayoutManager只能在单方向撑满屏幕，如果在有限个item内横向竖向都撑满该怎么做呢？<br><a id="more"></a></p><h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>如果是菜单全屏，那么意味着当前界面展示了所有itemView，完全可以抛开缓存机制模仿GridLayoutManager重新写一个LayoutManager。但总觉得还是太麻烦，那就动态计算itemView的高度吧（以下均针对GridLayoutManager横向情况）。</p><p>创建一个Adapter，我们重点关注onBindViewHolder函数：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">var data = emptyList&lt;String&gt;()</span><br><span class="line">    set(value) &#123;</span><br><span class="line">        field = value</span><br><span class="line">        notifyDataSetChanged()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> var itemHeight = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="function">fun <span class="title">updateItemHeight</span><span class="params">(height: Int)</span> </span>&#123;</span><br><span class="line">    itemHeight = height</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">override fun <span class="title">onBindViewHolder</span><span class="params">(holder: MenuViewHolder, position: Int)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    val s = data[position]</span><br><span class="line">    holder.tvTitle.text = s</span><br><span class="line"></span><br><span class="line">    val layoutParams = holder.itemView.layoutParams</span><br><span class="line">    <span class="comment">// 高度可能有盈余，减1保证不可滑动</span></span><br><span class="line">    layoutParams.height = itemHeight - <span class="number">1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><p>在onBindViewHolder函数中，获取到layoutParams，并给height撑满界面时所需的高度即可。<br>再看一下Activity中计算itemHeight的方法，也十分简单：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> fun <span class="title">measureHeight</span><span class="params">()</span>: Int </span>&#123;</span><br><span class="line">    val row: Int = <span class="keyword">if</span> (<span class="number">0</span> == menuData.size % gridLayoutManager.spanCount) &#123;</span><br><span class="line">        menuData.size / gridLayoutManager.spanCount</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        menuData.size / gridLayoutManager.spanCount + <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> recyclerView.height / row</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><p>如果item的个数能整除列数，意味着正好撑满最后一行，因此行数为menuData.size / gridLayoutManager.spanCount；如果不能整除就加1。之后设置一下Adapter。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">btAdd.setOnClickListener &#123;</span><br><span class="line">    menuData.add(<span class="string">"第$&#123;count++&#125;项"</span>)</span><br><span class="line">    menuAdapter.run &#123;</span><br><span class="line">        data = menuData</span><br><span class="line">        updateItemHeight(measureHeight())</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><p>最后看一下效果图：<br><img src="/images/recyclerview-menu/sample.gif" alt="image"></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;目前菜单界面采用RecyclerView + GridLayoutManager实现，最大的好处是修改样式十分方便。但是GridLayoutManager只能在单方向撑满屏幕，如果在有限个item内横向竖向都撑满该怎么做呢？&lt;br&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Android" scheme="http://yoursite.com/categories/Android/"/>
+    
+    
+      <category term="Android" scheme="http://yoursite.com/tags/Android/"/>
+    
+  </entry>
   
   <entry>
     <title>Android批量引用资源文件</title>

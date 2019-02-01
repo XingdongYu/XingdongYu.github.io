@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="Android," />
 
 
 
@@ -81,17 +81,20 @@
 
 
 
-<meta name="description" content="之前文章一直在cnblog上写，虽然不多却也花费了不少心思，所以会把这些文章陆续迁移过来。以后如果踩了什么坑或者有什么好玩的东西也都会放在这儿。希望能一直坚持下去。 2018.07.02by: RoboG">
+<meta name="description" content="前言目前菜单界面采用RecyclerView + GridLayoutManager实现，最大的好处是修改样式十分方便。但是GridLayoutManager只能在单方向撑满屏幕，如果在有限个item内横向竖向都撑满该怎么做呢？">
+<meta name="keywords" content="Android">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello Blog">
-<meta property="og:url" content="http://yoursite.com/2018/07/02/hello-blog/index.html">
+<meta property="og:title" content="RecyclerView菜单全屏解决方案">
+<meta property="og:url" content="http://yoursite.com/2019/02/01/recyclerview-menu/index.html">
 <meta property="og:site_name" content="RoboG&#39;s Blog">
-<meta property="og:description" content="之前文章一直在cnblog上写，虽然不多却也花费了不少心思，所以会把这些文章陆续迁移过来。以后如果踩了什么坑或者有什么好玩的东西也都会放在这儿。希望能一直坚持下去。 2018.07.02by: RoboG">
+<meta property="og:description" content="前言目前菜单界面采用RecyclerView + GridLayoutManager实现，最大的好处是修改样式十分方便。但是GridLayoutManager只能在单方向撑满屏幕，如果在有限个item内横向竖向都撑满该怎么做呢？">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-07-03T04:49:18.439Z">
+<meta property="og:image" content="http://yoursite.com/images/recyclerview-menu/sample.gif">
+<meta property="og:updated_time" content="2019-02-01T03:22:21.613Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hello Blog">
-<meta name="twitter:description" content="之前文章一直在cnblog上写，虽然不多却也花费了不少心思，所以会把这些文章陆续迁移过来。以后如果踩了什么坑或者有什么好玩的东西也都会放在这儿。希望能一直坚持下去。 2018.07.02by: RoboG">
+<meta name="twitter:title" content="RecyclerView菜单全屏解决方案">
+<meta name="twitter:description" content="前言目前菜单界面采用RecyclerView + GridLayoutManager实现，最大的好处是修改样式十分方便。但是GridLayoutManager只能在单方向撑满屏幕，如果在有限个item内横向竖向都撑满该怎么做呢？">
+<meta name="twitter:image" content="http://yoursite.com/images/recyclerview-menu/sample.gif">
 
 
 
@@ -121,13 +124,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/07/02/hello-blog/"/>
+  <link rel="canonical" href="http://yoursite.com/2019/02/01/recyclerview-menu/"/>
 
 
 
 
 
-  <title>Hello Blog | RoboG's Blog</title>
+  <title>RecyclerView菜单全屏解决方案 | RoboG's Blog</title>
   
 
 
@@ -244,7 +247,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/02/hello-blog/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/02/01/recyclerview-menu/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="XingdongYu">
@@ -261,7 +264,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Hello Blog</h1>
+          <h1 class="post-title" itemprop="name headline">RecyclerView菜单全屏解决方案</h1>
         
 
         <div class="post-meta">
@@ -273,8 +276,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-02T18:26:24+08:00">
-                2018-07-02
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-01T11:16:31+08:00">
+                2019-02-01
               </time>
             
 
@@ -283,6 +286,28 @@
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -311,8 +336,12 @@
       
 
       
-        <p>之前文章一直在cnblog上写，虽然不多却也花费了不少心思，所以会把这些文章陆续迁移过来。以后如果踩了什么坑或者有什么好玩的东西也都会放在这儿。希望能一直坚持下去。</p>
-<p>2018.07.02<br>by: RoboG</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>目前菜单界面采用RecyclerView + GridLayoutManager实现，最大的好处是修改样式十分方便。但是GridLayoutManager只能在单方向撑满屏幕，如果在有限个item内横向竖向都撑满该怎么做呢？<br><a id="more"></a></p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>如果是菜单全屏，那么意味着当前界面展示了所有itemView，完全可以抛开缓存机制模仿GridLayoutManager重新写一个LayoutManager。但总觉得还是太麻烦，那就动态计算itemView的高度吧（以下均针对GridLayoutManager横向情况）。</p>
+<p>创建一个Adapter，我们重点关注onBindViewHolder函数：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">var data = emptyList&lt;String&gt;()</span><br><span class="line">    set(value) &#123;</span><br><span class="line">        field = value</span><br><span class="line">        notifyDataSetChanged()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> var itemHeight = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="function">fun <span class="title">updateItemHeight</span><span class="params">(height: Int)</span> </span>&#123;</span><br><span class="line">    itemHeight = height</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">override fun <span class="title">onBindViewHolder</span><span class="params">(holder: MenuViewHolder, position: Int)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    val s = data[position]</span><br><span class="line">    holder.tvTitle.text = s</span><br><span class="line"></span><br><span class="line">    val layoutParams = holder.itemView.layoutParams</span><br><span class="line">    <span class="comment">// 高度可能有盈余，减1保证不可滑动</span></span><br><span class="line">    layoutParams.height = itemHeight - <span class="number">1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在onBindViewHolder函数中，获取到layoutParams，并给height撑满界面时所需的高度即可。<br>再看一下Activity中计算itemHeight的方法，也十分简单：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> fun <span class="title">measureHeight</span><span class="params">()</span>: Int </span>&#123;</span><br><span class="line">    val row: Int = <span class="keyword">if</span> (<span class="number">0</span> == menuData.size % gridLayoutManager.spanCount) &#123;</span><br><span class="line">        menuData.size / gridLayoutManager.spanCount</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        menuData.size / gridLayoutManager.spanCount + <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> recyclerView.height / row</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如果item的个数能整除列数，意味着正好撑满最后一行，因此行数为menuData.size / gridLayoutManager.spanCount；如果不能整除就加1。之后设置一下Adapter。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">btAdd.setOnClickListener &#123;</span><br><span class="line">    menuData.add(<span class="string">"第$&#123;count++&#125;项"</span>)</span><br><span class="line">    menuAdapter.run &#123;</span><br><span class="line">        data = menuData</span><br><span class="line">        updateItemHeight(measureHeight())</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>最后看一下效果图：<br><img src="/images/recyclerview-menu/sample.gif" alt="image"></p>
 
       
     </div>
@@ -328,6 +357,12 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
 
       
       
@@ -337,15 +372,15 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/2018/11/05/android-resource-get/" rel="next" title="Android批量引用资源文件">
+                <i class="fa fa-chevron-left"></i> Android批量引用资源文件
+              </a>
+            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/07/03/android-cache-1/" rel="prev" title="浅谈Android中的缓存(一)——内存缓存">
-                浅谈Android中的缓存(一)——内存缓存 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -397,8 +432,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -479,6 +523,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决方案"><span class="nav-number">2.</span> <span class="nav-text">解决方案</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
